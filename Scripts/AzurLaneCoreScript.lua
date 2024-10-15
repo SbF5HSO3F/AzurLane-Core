@@ -328,6 +328,19 @@ function AzurLaneCore.HasStrength(unit)
     return unit and (unit:GetCombat() > 0 or unit:GetRangedCombat() > 0 or unit:GetBombardCombat() > 0)
 end
 
+--获取玩家宗教，已创建宗教则返回创建的宗教，没有则返回玩家的主流宗教，否则返回-1 (GamePlay, UI)
+function AzurLaneCore.GetPlayerReligion(playerID)
+    local pPlayer = Players[playerID]
+    if pPlayer == nil then return -1 end
+    local pPlayerReligion = Players[playerID]:GetReligion()
+    if pPlayerReligion == nil then return -1 end
+    if pPlayerReligion:GetReligionTypeCreated() ~= -1 then
+        return pPlayerReligion:GetReligionTypeCreated()
+    else
+        return pPlayerReligion:GetReligionInMajorityOfCities()
+    end
+end
+
 --||=====================GamePlay=======================||--
 --这些函数只可在GamePlay环境下使用
 
@@ -401,6 +414,30 @@ function AzurLaneCore:GetRandomCivicBoosts(playerID, iSource, num)
             end
         else
             break
+        end
+    end
+end
+
+--对单位造成伤害，超出生命值则死亡 (GamePlay)
+function AzurLaneCore.DamageUnit(unit, damage)
+    local maxDamage = unit:GetMaxDamage()
+    if (unit:GetDamage() + damage) >= maxDamage then
+        unit:SetDamage(maxDamage)
+        UnitManager.Kill(unit, false)
+    else
+        unit:ChangeDamage(damage)
+    end
+end
+
+--传播宗教，以x,y为中心，向range范围内的城市施加pressure点宗教压力 (GamePlay)
+function AzurLaneCore:SpreadReligion(playerID, x, y, range, pressure)
+    local religion = self.GetPlayerReligion(playerID)
+    if religion == -1 then return end
+    local tNeighborPlots = Map.GetNeighborPlots(x, y, range)
+    for _, pPlot in ipairs(tNeighborPlots) do
+        local pCity = CityManager.GetCityAt(pPlot:GetX(), pPlot:GetY())
+        if pCity ~= nil then
+            pCity:GetReligion():AddReligiousPressure(8, religion, pressure, playerID)
         end
     end
 end
