@@ -341,6 +341,36 @@ function AzurLaneCore.GetPlayerReligion(playerID)
     end
 end
 
+--判断单元格是否可以放置指定单位 (GamePlay, UI)
+function AzurLaneCore.CanHaveUnit(plot, unitdef)
+    if plot == nil then return false end
+    local canHave = true
+    for _, unit in ipairs(Units.GetUnitsInPlot(plot)) do
+        if unit then
+            local unitInfo = GameInfo.Units[unit:GetType()]
+            if unitInfo then
+                if unitInfo.IgnoreMoves == false then
+                    if unitInfo.Domain == unitdef.Domain and unitInfo.FormationClass == unitdef.FormationClass then
+                        canHave = false
+                    end
+                end
+            end
+        end
+    end
+    return canHave
+end
+
+--检查单位是否是军事单位 (GamePlay, UI)
+function IronCore.IsMilitary(unit)
+    if unit == nil then return false end
+    local unitInfo = GameInfo.Units[unit:GetType()]
+    if unitInfo == nil then return false end
+    local unitFormation = unitInfo.FormationClass
+    return unitFormation == 'FORMATION_CLASS_LAND_COMBAT'
+        or unitFormation == 'FORMATION_CLASS_NAVAL'
+        or unitFormation == 'FORMATION_CLASS_AIR'
+end
+
 --||=====================GamePlay=======================||--
 --这些函数只可在GamePlay环境下使用
 
