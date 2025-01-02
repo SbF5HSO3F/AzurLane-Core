@@ -1,5 +1,5 @@
 -- AzurLaneCoreScript
--- Author: jjj
+-- Author: HSbF6HSO3F
 -- DateCreated: 2024/10/10 21:10:53
 --------------------------------------------------------------
 --建立代码框架
@@ -23,11 +23,6 @@ end
 --数字四舍五入处理 (GamePlay, UI)
 function AzurLaneCore.Round(num)
     return math.floor((num + 0.05) * 10) / 10
-end
-
---随机数生成器，范围为[1,num+1] (GamePlay, UI)
-function AzurLaneCore.tableRandom(num)
-    return Game.GetRandNum and (Game.GetRandNum(num) + 1) or 1
 end
 
 --将输入的数字按照当前游戏速度进行修正 (GamePlay, UI)
@@ -361,7 +356,7 @@ function AzurLaneCore.CanHaveUnit(plot, unitdef)
 end
 
 --检查单位是否是军事单位 (GamePlay, UI)
-function IronCore.IsMilitary(unit)
+function AzurLaneCore.IsMilitary(unit)
     if unit == nil then return false end
     local unitInfo = GameInfo.Units[unit:GetType()]
     if unitInfo == nil then return false end
@@ -371,8 +366,40 @@ function IronCore.IsMilitary(unit)
         or unitFormation == 'FORMATION_CLASS_AIR'
 end
 
+--规范每回合价值显示 (GamePlay, UI)
+function AzurLaneCore.FormatValue(value)
+    if value == 0 then
+        return Locale.ToNumber(value)
+    else
+        return Locale.Lookup("{1: number +#,###.#;-#,###.#}", value)
+    end
+end
+
+--数字百分比修正 (GamePlay, UI)
+function AzurLaneCore:ModifyByPercent(num, percent)
+    return self.Round(num * (1 + percent / 100))
+end
+
+--获取玩家的区域数量 (GamePlay, UI)
+function AzurLaneCore.GetPlayerDistrictCount(playerID, index)
+    local pPlayer, count = Players[playerID], 0
+    if not pPlayer then return count end
+    local districts = pPlayer:GetDistricts()
+    for _, district in districts:Members() do
+        if district:GetType() == index and district:IsComplete() and (not district:IsPillaged()) then
+            count = count + 1
+        end
+    end
+    return count
+end
+
 --||=====================GamePlay=======================||--
 --这些函数只可在GamePlay环境下使用
+
+--随机数生成器，范围为[1,num+1] (GamePlay)
+function AzurLaneCore.tableRandom(num)
+    return Game.GetRandNum and (Game.GetRandNum(num) + 1) or 1
+end
 
 --玩家获得随机数量的尤里卡 (GamePlay)
 function AzurLaneCore:GetRandomTechBoosts(playerID, iSource, num)
@@ -487,9 +514,11 @@ function AzurLaneCore.GetProductionDetail(city)
         --生产项目信息
         ItemType   = 'NONE',
         ItemName   = 'NONE',
+        ItemIndex  = -1,
         --生产进度信息
         Progress   = 0,
         TotalCost  = 0,
+        TurnsLeft  = 0
     }; if not city then return details end
     --获取城市生产队列，判断是否在生产
     local cityBuildQueue = city:GetBuildQueue()
@@ -513,6 +542,8 @@ function AzurLaneCore.GetProductionDetail(city)
             details.ItemType = pBuildingDef.BuildingType
             --城市生产的建筑名称
             details.ItemName = Locale.Lookup(pBuildingDef.Name)
+            --城市生产的建筑索引
+            details.ItemIndex = index
             --生产进度和总成本
             details.Progress = cityBuildQueue:GetBuildingProgress(index)
             details.TotalCost = cityBuildQueue:GetBuildingCost(index)
@@ -525,6 +556,8 @@ function AzurLaneCore.GetProductionDetail(city)
             details.ItemType = pDistrictDef.DistrictType
             --城市生产的区域名称
             details.ItemName = Locale.Lookup(pDistrictDef.Name)
+            --城市生产的区域索引
+            details.ItemIndex = index
             --生产进度和总成本
             details.Progress = cityBuildQueue:GetDistrictProgress(index)
             details.TotalCost = cityBuildQueue:GetDistrictCost(index)
@@ -537,6 +570,8 @@ function AzurLaneCore.GetProductionDetail(city)
             details.ItemType = pUnitDef.UnitType
             --城市生产的单位名称
             details.ItemName = Locale.Lookup(pUnitDef.Name)
+            --城市生产的单位索引
+            details.ItemIndex = index
             --生产进度
             details.Progress = cityBuildQueue:GetUnitProgress(index)
             --获取当前单位的军事形式，计算总成本
@@ -572,10 +607,14 @@ function AzurLaneCore.GetProductionDetail(city)
             details.ItemType = pProjectDef.ProjectType
             --城市生产的项目名称
             details.ItemName = Locale.Lookup(pProjectDef.Name)
+            --城市生产的项目索引
+            details.ItemIndex = index
             --生产进度和总成本
             details.Progress = cityBuildQueue:GetProjectProgress(index)
             details.TotalCost = cityBuildQueue:GetProjectCost(index)
         end
+        --生产所需回合
+        details.TurnsLeft = cityBuildQueue:GetTurnsLeft()
     end
     return details
 end
