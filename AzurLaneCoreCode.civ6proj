@@ -2,13 +2,13 @@
 <Project ToolsVersion="12.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
-    <Name>AzurLaneCoreCode</Name>
+    <Name>LOC_AZURLANE_CORE_NAME</Name>
     <Guid>08619aa0-143b-4ab2-9309-b00c8fd08e0b</Guid>
     <ProjectGuid>bee7831b-eca9-4790-97f7-02480142ae99</ProjectGuid>
     <ModVersion>1</ModVersion>
-    <Teaser>This is a brief description of the mod.</Teaser>
-    <Description>This is a brief description of the mod.</Description>
-    <Authors>jjj</Authors>
+    <Teaser>LOC_AZURLANE_CORE_TEASER</Teaser>
+    <Description>LOC_AZURLANE_CORE_DEACRIPTION</Description>
+    <Authors>HSbF6HSO3F</Authors>
     <SpecialThanks>
     </SpecialThanks>
     <AffectsSavedGames>true</AffectsSavedGames>
@@ -18,6 +18,25 @@
     <CompatibleVersions>1.2,2.0</CompatibleVersions>
     <AssemblyName>AzurLaneCoreCode</AssemblyName>
     <RootNamespace>AzurLaneCoreCode</RootNamespace>
+    <LocalizedTextData><![CDATA[
+      <LocalizedText>
+        <Text id="LOC_AZURLANE_CORE_NAME">
+          <en_US>Azur Lane-Code Core</en_US>
+          <zh_Hans_CN>碧蓝航线·代码核心</zh_Hans_CN>
+          <zh_Hant_HK>白鷹聯邦·領袖擴展1</zh_Hant_HK>
+        </Text>
+        <Text id="LOC_AZURLANE_CORE_TEASER">
+          <en_US>Added more leaders to the mod "AuzrLane-Eagle Union".</en_US>
+          <zh_Hans_CN>“碧蓝航线”系列模组代码核心。</zh_Hans_CN>
+          <zh_Hant_HK>為模組「碧藍航線·白鷹聯邦」添加更多領袖。</zh_Hant_HK>
+        </Text>
+        <Text id="LOC_AZURLANE_CORE_DEACRIPTION">
+          <en_US>Added more leaders to the mod "AuzrLane-Eagle Union". There is currently 3 leader added: Laffey, Flasher and Eldridge.</en_US>
+          <zh_Hans_CN>为“碧蓝航线”系列模组提供代码支持。</zh_Hans_CN>
+          <zh_Hant_HK>為模組「碧藍航線·白鷹聯邦」添加更多領袖。當前共添加了3名領袖：拉菲、松鲷和埃爾德裏奇。</zh_Hant_HK>
+        </Text>
+      </LocalizedText>
+    ]]></LocalizedTextData>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
     <OutputPath>.</OutputPath>
@@ -26,10 +45,18 @@
     <None Include="AzurLaneCoreCode.Art.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Scripts" />
+    <Folder Include="Import" />
+    <Folder Include="Text" />
+    <Folder Include="Text\Base" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\AzurLaneCoreScript.lua">
+    <Content Include="Import\AzurLaneCoreScript.lua">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Import\AzurResources.lua">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Text\AzurLaneCoreCode_TextCN.xml">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>

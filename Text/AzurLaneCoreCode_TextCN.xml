@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AzurLaneCoreCode_TextCn -->
+<!-- Author: jjj -->
+<!-- DateCreated: 2025/3/2 9:38:29 -->
+<GameData>
+	<LocalizedText>
+        <!--碧蓝航线：资源-->
+		<Replace Tag="LOC_AZURLANE_RESOURCE_CONDITIONS" Language="zh_Hans_CN">
+			<Text>单元格需满足以下条件之一：</Text>
+		</Replace>
+        <Replace Tag="LOC_AZURLANE_RESOURCE_VAILD_TERRAIN" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]拥有地形：{1_Terrain}</Text>
+		</Replace>
+        <Replace Tag="LOC_AZURLANE_RESOURCE_VAILD_FEATURE" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]拥有地貌：{1_Feature}</Text>
+		</Replace>
+	</LocalizedText>
+</GameData>
