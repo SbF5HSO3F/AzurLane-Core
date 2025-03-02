@@ -23,15 +23,16 @@ function AzurResource:newByDef(resourceDef)
     --创建新实例
     local object = {}
     setmetatable(object, self)
-    self.__index = self
-    local type   = resourceDef.ResourceType
-    object.Type  = type
-    object.Index = resourceDef.Index
-    object.Class = resourceDef.ResourceClassType
-    object.Name  = resourceDef.Name
+    self.__index    = self
+    local type      = resourceDef.ResourceType
+    object.Type     = type
+    object.Index    = resourceDef.Index
+    object.Class    = resourceDef.ResourceClassType
+    object.Name     = resourceDef.Name
     --图标设置
-    object.Icon  = '[ICON_' .. type .. ']'
+    object.Icon     = '[ICON_' .. type .. ']'
     --遍历允许地形
+    object.Terrains = {}
     for row in GameInfo.Resource_ValidTerrains() do
         if row.ResourceType == type then
             local terrainDef = GameInfo.Terrains[row.TerrainType]
@@ -40,6 +41,7 @@ function AzurResource:newByDef(resourceDef)
         end
     end
     --遍历允许地貌
+    object.Features = {}
     for row in GameInfo.Resource_ValidFeatures() do
         if row.ResourceType == type then
             local featureDef = GameInfo.Features[row.FeatureType]
@@ -66,14 +68,17 @@ function AzurResource:newByDefNoValid(resourceDef)
     --创建新实例
     local object = {}
     setmetatable(object, self)
-    self.__index = self
-    local type   = resourceDef.ResourceType
-    object.Type  = type
-    object.Index = resourceDef.Index
-    object.Class = resourceDef.ResourceClassType
-    object.Name  = resourceDef.Name
+    self.__index    = self
+    local type      = resourceDef.ResourceType
+    object.Type     = type
+    object.Index    = resourceDef.Index
+    object.Class    = resourceDef.ResourceClassType
+    object.Name     = resourceDef.Name
     --图标设置
-    object.Icon  = '[ICON_' .. type .. ']'
+    object.Icon     = '[ICON_' .. type .. ']'
+    --地形和地貌
+    object.Terrains = {}
+    object.Features = {}
     return object
 end
 
@@ -100,7 +105,7 @@ function AzurResource:GetConditionsTooltip()
     for _, terrain in ipairs(self.Terrains) do
         tooltip = tooltip .. Locale.Lookup('LOC_AZURLANE_RESOURCE_VAILD_TERRAIN', terrain.Name)
     end
-    for _, feature in ipairs(self.Features) do
+    for _, feature in ipairs(self.Terrains) do
         tooltip = tooltip .. Locale.Lookup('LOC_AZURLANE_RESOURCE_VAILD_FEATURE', feature.Name)
     end
     return tooltip
@@ -136,12 +141,8 @@ function AzurResources:new(resourceReq)
         end
     end
     --创建地形和地貌限制
-    local resource = {}
     for row in GameInfo.Resource_ValidTerrains() do
-        local type = row.ResourceType
-        if resource == nil or resource.Type ~= type then
-            resource = object.Resources[type]
-        end
+        local resource = object.Resources[row.ResourceType]
         if resource then
             local terrainDef = GameInfo.Terrains[row.TerrainType]
             local terrain = { Index = terrainDef.Index, Name = terrainDef.Name }
@@ -149,10 +150,7 @@ function AzurResources:new(resourceReq)
         end
     end
     for row in GameInfo.Resource_ValidFeatures() do
-        local type = row.ResourceType
-        if resource == nil or resource.Type ~= type then
-            resource = object.Resources[type]
-        end
+        local resource = object.Resources[row.ResourceType]
         if resource then
             local featureDef = GameInfo.Features[row.FeatureType]
             local feature = { Index = featureDef.Index, Name = featureDef.Name }
