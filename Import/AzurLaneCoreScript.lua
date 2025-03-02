@@ -481,8 +481,10 @@ function AzurLaneCore.DamageUnit(unit, damage)
     if (unit:GetDamage() + damage) >= maxDamage then
         unit:SetDamage(maxDamage)
         UnitManager.Kill(unit, false)
+        return true
     else
         unit:ChangeDamage(damage)
+        return false
     end
 end
 
