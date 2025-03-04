@@ -7,14 +7,15 @@
 --------------------------------------------------------------
 -- AzurResource是有关资源的类，它允许更加简单的获取资源的可放置条件。
 AzurResource = {
-    Index    = -1,
-    Type     = '',
-    Class    = '',
-    Name     = '',
-    Icon     = '',
-    Terrains = {},
-    Remove   = true,
-    Features = {}
+    Index        = -1,
+    Type         = '',
+    Class        = '',
+    Name         = '',
+    Icon         = '',
+    Terrains     = {},
+    Remove       = true,
+    Features     = {},
+    Improvements = {}
 }
 
 --创建新实例，根据资源定义
@@ -25,37 +26,46 @@ function AzurResource:newByDef(resourceDef)
     local object = {}
     setmetatable(object, self)
     self.__index    = self
-    local type      = resourceDef.ResourceType
-    object.Type     = type
+    local resource  = resourceDef.ResourceType
+    object.Type     = resource
     object.Index    = resourceDef.Index
     object.Class    = resourceDef.ResourceClassType
     object.Name     = resourceDef.Name
     --图标设置
-    object.Icon     = '[ICON_' .. type .. ']'
+    object.Icon     = '[ICON_' .. resource .. ']'
     --遍历允许地形
     object.Terrains = {}
     for row in GameInfo.Resource_ValidTerrains() do
-        if row.ResourceType == type then
+        if row.ResourceType == resource then
             local terrainDef = GameInfo.Terrains[row.TerrainType]
             local terrain = { Index = terrainDef.Index, Name = terrainDef.Name }
             table.insert(object.Terrains, terrain)
         end
     end
-    --改良是否必须移除地貌
-    object.Remove = true
-    for row in GameInfo.Improvement_ValidResources() do
-        if row.ResourceType == type and row.MustRemoveFeature == false then
-            object.Remove = false
-            break
-        end
-    end
     --遍历允许地貌
     object.Features = {}
     for row in GameInfo.Resource_ValidFeatures() do
-        if row.ResourceType == type then
+        if row.ResourceType == resource then
             local featureDef = GameInfo.Features[row.FeatureType]
             local feature = { Index = featureDef.Index, Name = featureDef.Name }
             table.insert(object.Features, feature)
+        end
+    end
+    --改良是否必须移除地貌
+    object.Remove = true
+    --提升用改良设施
+    object.Improvements = {}
+    --遍历改良设施允许资源表
+    for row in GameInfo.Improvement_ValidResources() do
+        if row.ResourceType == resource then
+            if row.MustRemoveFeature == false then
+                object.Remove = false
+            end
+            if not (object.Remove and row.MustRemoveFeature) then
+                local improtDef = GameInfo.Improvements[row.ImprovementType]
+                local improt = { Index = improtDef.Index, Name = improtDef.Name, Icon = improtDef.Icon }
+                table.insert(object.Improvements, improt)
+            end
         end
     end
     return object
@@ -70,25 +80,26 @@ function AzurResource:new(resourceType)
     return self:newByDef(def)
 end
 
---创建新实例，根据资源定义但没有地形和地貌限制
+--创建新实例，根据资源定义但没有限制
 function AzurResource:newByDefNoValid(resourceDef)
     --错误处理
     if not resourceDef then return nil end
     --创建新实例
     local object = {}
     setmetatable(object, self)
-    self.__index    = self
-    local type      = resourceDef.ResourceType
-    object.Type     = type
-    object.Index    = resourceDef.Index
-    object.Class    = resourceDef.ResourceClassType
-    object.Name     = resourceDef.Name
+    self.__index        = self
+    local type          = resourceDef.ResourceType
+    object.Type         = type
+    object.Index        = resourceDef.Index
+    object.Class        = resourceDef.ResourceClassType
+    object.Name         = resourceDef.Name
     --图标设置
-    object.Icon     = '[ICON_' .. type .. ']'
+    object.Icon         = '[ICON_' .. type .. ']'
     --地形和地貌
-    object.Terrains = {}
-    object.Remove   = true
-    object.Features = {}
+    object.Terrains     = {}
+    object.Remove       = true
+    object.Features     = {}
+    object.Improvements = {}
     return object
 end
 
@@ -106,6 +117,17 @@ function AzurResource:GetPlaceable(plot)
     local terrainType = plot:GetTerrainType()
     for _, terrain in ipairs(self.Terrains) do
         if terrainType == terrain.Index then return true end
+    end
+    return false
+end
+
+--获取资源可用改良设施
+function AzurResource:GetImprovement(plot)
+    local hasFeature = plot:GetFeatureType() ~= -1
+    for _, improvement in ipairs(self.Improvements) do
+        if not (hasFeature and improvement.Remove) then
+            return improvement
+        end
     end
     return false
 end
@@ -136,7 +158,6 @@ AzurResources = { Resources = {} }
 
 --创建新实例，根据资源类型列表
 function AzurResources:new(resourceReq)
-    if not resourceReq then return nil end
     local object = {}
     setmetatable(object, self)
     self.__index = self
@@ -145,12 +166,16 @@ function AzurResources:new(resourceReq)
     --遍历资源类型列表
     for def in GameInfo.Resources() do
         local match = false
-        if def.Frequency ~= 0 then
-            if resourceReq[def.ResourceType] then
+        if def.Frequency ~= 0 or def.SeaFrequency ~= 0 then
+            if resourceReq == true then
                 match = true
-            end
-            if resourceReq[def.ResourceClassType] then
-                match = true
+            else
+                if resourceReq[def.ResourceType] then
+                    match = true
+                end
+                if resourceReq[def.ResourceClassType] then
+                    match = true
+                end
             end
         end
         if match then
@@ -178,14 +203,28 @@ function AzurResources:new(resourceReq)
     --改良是否必须移除地貌
     for row in GameInfo.Improvement_ValidResources() do
         local resource = object.Resources[row.ResourceType]
-        if resource and row.MustRemoveFeature == false then
-            resource.Remove = false
+        if resource then
+            if row.MustRemoveFeature == false then
+                resource.Remove = false
+            end
+            local improtDef = GameInfo.Improvements[row.ImprovementType]
+            local improt = {
+                Index  = improtDef.Index,
+                Name   = improtDef.Name,
+                Icon   = improtDef.Icon,
+                Remove = row.MustRemoveFeature
+            }; table.insert(resource.Improvements, improt)
         end
     end
     return object
 end
 
 --||====================Based functions===================||--
+
+--获取资源实例
+function AzurResources:GetResource(resourceType)
+    return self.Resources[resourceType]
+end
 
 --获取该单元格可以放置的资源列表
 function AzurResources:GetPlaceableResources(plot)
