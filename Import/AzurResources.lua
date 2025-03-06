@@ -4,6 +4,7 @@
 --------------------------------------------------------------
 --||=======================include========================||--
 include('AzurImprovements')
+include('AzurConditions')
 
 --||======================MetaTable=======================||--
 
@@ -134,19 +135,31 @@ end
 
 --获取资源可放置条件功能性文本
 function AzurResource:GetConditionsTooltip()
-    local tooltip = Locale.Lookup("LOC_AZURLANE_RESOURCE_CONDITIONS")
-    if self.Remove then
-        tooltip = tooltip .. Locale.Lookup('LOC_AZURLANE_RESOURCE_NO_FEATURE')
-    end
-    tooltip = tooltip .. Locale.Lookup('LOC_AZURLANE_RESOURCE_TERRAIN')
+    local title = Locale.Lookup("LOC_AZURLANE_RESOURCE_CONDITIONS")
+    --设置判断集合
+    local sets = {}
+    sets.All = true
+    sets.Sets = {}
+    --设置子条件集合
+    local subSets = {}
+    subSets.All = false
+    subSets.Sets = {}
+
+    -- 添加有效地形的提示信息
     for _, terrain in ipairs(self.Terrains) do
-        tooltip = tooltip .. Locale.Lookup('LOC_AZURLANE_RESOURCE_VAILD_TERRAIN', terrain.Name)
+        table.insert(subSets.Sets, Locale.Lookup('LOC_AZURLANE_RESOURCE_VAILD_TERRAIN', terrain.Name))
     end
-    tooltip = tooltip .. Locale.Lookup('LOC_AZURLANE_RESOURCE_FEATURE')
-    for _, feature in ipairs(self.Terrains) do
-        tooltip = tooltip .. Locale.Lookup('LOC_AZURLANE_RESOURCE_VAILD_FEATURE', feature.Name)
+    -- 添加有效特征的提示信息
+    for _, feature in ipairs(self.Features) do
+        table.insert(subSets.Sets, Locale.Lookup('LOC_AZURLANE_RESOURCE_VAILD_FEATURE', feature.Name))
     end
-    return tooltip
+
+    table.insert(sets.Sets, subSets)
+
+    if self.Remove then
+        table.insert(sets.Sets, Locale.Lookup('LOC_AZURLANE_RESOURCE_NO_FEATURE'))
+    end
+    return title .. AzurConditions:Create(sets, '', true)
 end
 
 --||======================MetaTable=======================||--

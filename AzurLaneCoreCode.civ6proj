@@ -50,6 +50,9 @@
     <Folder Include="Text\Base" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Import\AzurConditions.lua">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Import\AzurImprovements.lua">
       <SubType>Content</SubType>
     </Content>
