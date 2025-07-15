@@ -492,11 +492,14 @@ end
 function AzurLaneCore:SpreadReligion(playerID, x, y, range, pressure)
     local religion = self.GetPlayerReligion(playerID)
     if religion == -1 then return end
-    local tNeighborPlots = Map.GetNeighborPlots(x, y, range)
-    for _, pPlot in ipairs(tNeighborPlots) do
-        local pCity = CityManager.GetCityAt(pPlot:GetX(), pPlot:GetY())
-        if pCity ~= nil then
-            pCity:GetReligion():AddReligiousPressure(8, religion, pressure, playerID)
+    for _, player in ipairs(Game.GetPlayers()) do
+        local cities = player:GetCities()
+        for _, city in cities:Members() do
+            if city ~= nil and Map.GetPlotDistance(
+                    x, y, city:GetX(), city:GetY()
+                ) <= range then
+                city:GetReligion():AddReligiousPressure(8, religion, pressure, playerID)
+            end
         end
     end
 end
