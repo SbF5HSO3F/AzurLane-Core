@@ -4,7 +4,6 @@
 --------------------------------------------------------------
 --||======================MetaTable=======================||--
 
---------------------------------------------------------------
 -- AzurImprovement是管理改良的类，允许获取改良的限制
 AzurImprovement = {
     Index    = -1,
@@ -163,7 +162,3 @@ end
 function AzurImprovements:GetImprovement(improvementType)
     return self.Improvements[improvementType]
 end
-
---||=======================include========================||--
-
-include('AzurImprovements_', true)

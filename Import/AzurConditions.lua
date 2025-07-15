@@ -4,7 +4,6 @@
 --------------------------------------------------------------
 --||======================MetaTable=======================||--
 
---------------------------------------------------------------
 -- AzurConditions用于创建条件判断的文本，用于游戏的显示
 AzurConditions = {}
 
@@ -89,7 +88,3 @@ function AzurConditions:CreateTooltip(conditions)
     local title = '[NEWLINE]' .. self:GetTitle(conditions)
     return title .. self:Create(conditions, nil, true)
 end
-
---||=======================include========================||--
-
-include('AzurConditions_', true)

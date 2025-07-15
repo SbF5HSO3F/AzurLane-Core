@@ -8,7 +8,6 @@ include('AzurConditions')
 
 --||======================MetaTable=======================||--
 
---------------------------------------------------------------
 -- AzurResource是有关资源的类，它允许更加简单的获取资源的可放置条件。
 AzurResource = {
     Index        = -1,
@@ -251,7 +250,3 @@ function AzurResources:GetPlaceableResources(plot)
     end
     return list
 end
-
---||=======================include========================||--
-
-include('AzurResources_', true)
