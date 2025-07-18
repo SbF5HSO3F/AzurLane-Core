@@ -21,12 +21,53 @@ end
 
 --||====================Based functions===================||--
 
+--检查单位是否拥有战斗力 (GamePlay, UI)
+function AzurUnit:HasStrength()
+    local unit = self.Unit
+    return unit and (unit:GetCombat() > 0 or unit:GetRangedCombat() > 0 or unit:GetBombardCombat() > 0)
+end
+
+-- 检查单位是否是军事单位 (GamePlay, UI)
+function AzurUnit:IsMilitary()
+    local unitInfo = self.UnitDef
+    if unitInfo == nil then return false end
+    local unitFormation = unitInfo.FormationClass
+    return unitFormation == 'FORMATION_CLASS_LAND_COMBAT'
+        or unitFormation == 'FORMATION_CLASS_NAVAL'
+        or unitFormation == 'FORMATION_CLASS_AIR'
+end
+
+--比较单位，如果新单位强度高与本单位则返回true (GamePlay, UI)
+function AzurUnit:CompareUnitDef(newDef)
+    if newDef == nil then return false end
+    local oldDef = self.UnitDef
+    if oldDef == nil then return true end
+    -- 近战战斗力比较
+    if oldDef.Combat ~= newDef.Combat then
+        return oldDef.Combat < newDef.Combat
+    end
+    -- 远程战斗力比较
+    if oldDef.RangedCombat ~= newDef.RangedCombat then
+        return oldDef.RangedCombat < newDef.RangedCombat
+    end
+    -- 轰炸战斗力比较
+    if oldDef.Bombard ~= newDef.Bombard then
+        return oldDef.Bombard < newDef.Bombard
+    end
+    -- 攻击范围比较
+    if oldDef.Range ~= newDef.Range then
+        return oldDef.Range < newDef.Range
+    end
+    -- 移动速度比较
+    return oldDef.BaseMoves < newDef.BaseMoves
+end
+
 --获取单位可用能力 (GamePlay, UI)
 function AzurUnit:QueryUsableAbilities()
     local unit = self.Unit
     --获取tag表
     local tags = { CLASS_ALL_UNITS = true }
-    if AzurLaneCore.HasStrength(unit) then
+    if self:HasStrength() then
         tags.CLASS_ALL_COMBAT_UNITS = true
     end
     local type = self.UnitDef.UnitType
