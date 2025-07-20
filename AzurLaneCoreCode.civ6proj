@@ -59,7 +59,7 @@
     <Content Include="Import\AzurImprovements.lua">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Import\AzurLaneCoreScript.lua">
+    <Content Include="Import\AzurCore.lua">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Import\AzurMath.lua">
@@ -72,6 +72,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Import\AzurUnit.lua">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Import\AzurYields.lua">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Text\AzurLaneCoreCode_TextCN.xml">

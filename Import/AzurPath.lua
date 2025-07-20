@@ -3,7 +3,7 @@
 -- DateCreated: 2025/7/15 11:01:40
 --------------------------------------------------------------
 --||=======================include========================||--
-include('AzurLaneCoreScript')
+include('AzurCoreScript')
 
 --||======================MetaTable=======================||--
 
@@ -41,7 +41,7 @@ function AzurPath:GetAStarNode(sIndex, eIndex, parent)
     if eIndex then
         local endPlot = Map.GetPlotByIndex(eIndex)
         --计算距离
-        H = AzurLaneCore.GetDistance(startPlot, endPlot)
+        H = AzurCore.GetDistance(startPlot, endPlot)
     end
     --如果有母节点，计算G
     if parent then G = self.GetPlotG(sIndex) + parent.G end

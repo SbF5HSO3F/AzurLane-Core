@@ -3,7 +3,7 @@
 -- DateCreated: 2025/7/15 11:07:45
 --------------------------------------------------------------
 --||=======================include========================||--
-include('AzurLaneCoreScript')
+include('AzurCoreScript')
 
 --||======================MetaTable=======================||--
 
@@ -119,7 +119,7 @@ function AzurUnit:GetRandomAbility()
     local abilities = self:GetUsableAbilities()
     if #abilities == 0 then return false end
 
-    local random = abilities[AzurLaneCore.tableRandom(#abilities)]
+    local random = abilities[AzurCore.tableRandom(#abilities)]
     local unit = self.Unit
     unit:GetAbility():ChangeAbilityCount(random, 1)
     --add the float text

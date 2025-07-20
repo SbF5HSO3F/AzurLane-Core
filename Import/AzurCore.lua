@@ -1,39 +1,39 @@
--- AzurLaneCoreScript
+-- AzurCoreScript
 -- Author: HSbF6HSO3F
 -- DateCreated: 2024/10/10 21:10:53
 --------------------------------------------------------------
 --建立代码框架
-AzurLaneCore = {}
+AzurCore = {}
 
 --||====================GamePlay, UI======================||--
 --通用函数
 
 --判断领袖，玩家不为指定领袖类型则返回false (GamePlay, UI)
-function AzurLaneCore.CheckLeaderMatched(playerID, leaderType)
+function AzurCore.CheckLeaderMatched(playerID, leaderType)
     local pPlayerConfig = playerID and PlayerConfigurations[playerID]
     return pPlayerConfig and pPlayerConfig:GetLeaderTypeName() == leaderType
 end
 
 --判断文明，玩家文明不为指定文明类型则返回false (GamePlay, UI)
-function AzurLaneCore.CheckCivMatched(playerID, civilizationType)
+function AzurCore.CheckCivMatched(playerID, civilizationType)
     local pPlayerConfig = playerID and PlayerConfigurations[playerID]
     return pPlayerConfig and pPlayerConfig:GetCivilizationTypeName() == civilizationType
 end
 
 --数字四舍五入处理 (GamePlay, UI)
-function AzurLaneCore.Round(num)
+function AzurCore.Round(num)
     return math.floor((num + 0.05) * 10) / 10
 end
 
 --将输入的数字按照当前游戏速度进行修正 (GamePlay, UI)
-function AzurLaneCore:ModifyBySpeed(num)
+function AzurCore:ModifyBySpeed(num)
     local gameSpeed = GameInfo.GameSpeeds[GameConfiguration.GetGameSpeedType()]
     if gameSpeed then num = self.Round(num * gameSpeed.CostMultiplier / 100) end
     return num
 end
 
 --检查table中是否有指定元素 (GamePlay, UI)
-function AzurLaneCore.include(table, element)
+function AzurCore.include(table, element)
     for _, value in pairs(table) do
         if value == element then
             return true
@@ -43,7 +43,7 @@ function AzurLaneCore.include(table, element)
 end
 
 --检查科技或者市政是否拥有提升 (GamePlay, UI)
-function AzurLaneCore.HasBoost(techOrCivic)
+function AzurCore.HasBoost(techOrCivic)
     for boost in GameInfo.Boosts() do
         if techOrCivic == boost.TechnologyType or techOrCivic == boost.CivicType then
             return true
@@ -53,7 +53,7 @@ function AzurLaneCore.HasBoost(techOrCivic)
 end
 
 --获得玩家游戏进度。返回为百分比，需除以100 (GamePlay, UI)
-function AzurLaneCore:GetPlayerProgress(playerID)
+function AzurCore:GetPlayerProgress(playerID)
     local pPlayer = Players[playerID]
     if pPlayer == nil then return 0 end
     local playerTech = pPlayer:GetTechs()
@@ -78,7 +78,7 @@ function AzurLaneCore:GetPlayerProgress(playerID)
 end
 
 --获取两个对象之间的距离 (GamePlay, UI)
-function AzurLaneCore.GetDistance(object_1, object_2)
+function AzurCore.GetDistance(object_1, object_2)
     local result = 0
     if object_1 and object_2 then
         result = Map.GetPlotDistance(
@@ -89,7 +89,7 @@ function AzurLaneCore.GetDistance(object_1, object_2)
 end
 
 --比较单位，如果单位2强度高于单位1则返回true (GamePlay, UI)
-function AzurLaneCore.CompareUnitDef(unit1Def, unit2Def)
+function AzurCore.CompareUnitDef(unit1Def, unit2Def)
     if unit1Def == nil then return true end
     if unit2Def == nil then return false end
 
@@ -113,12 +113,12 @@ function AzurLaneCore.CompareUnitDef(unit1Def, unit2Def)
 end
 
 --检查单位是否拥有战斗力 (GamePlay, UI)
-function AzurLaneCore.HasStrength(unit)
+function AzurCore.HasStrength(unit)
     return unit and (unit:GetCombat() > 0 or unit:GetRangedCombat() > 0 or unit:GetBombardCombat() > 0)
 end
 
 --获取玩家宗教，已创建宗教则返回创建的宗教，没有则返回玩家的主流宗教，否则返回-1 (GamePlay, UI)
-function AzurLaneCore.GetPlayerReligion(playerID)
+function AzurCore.GetPlayerReligion(playerID)
     local pPlayer = Players[playerID]
     if pPlayer == nil then return -1 end
     local pPlayerReligion = Players[playerID]:GetReligion()
@@ -131,7 +131,7 @@ function AzurLaneCore.GetPlayerReligion(playerID)
 end
 
 --判断单元格是否可以放置指定单位 (GamePlay, UI)
-function AzurLaneCore.CanHaveUnit(plot, unitdef)
+function AzurCore.CanHaveUnit(plot, unitdef)
     if plot == nil then return false end
     local canHave = true
     for _, unit in ipairs(Units.GetUnitsInPlot(plot)) do
@@ -150,7 +150,7 @@ function AzurLaneCore.CanHaveUnit(plot, unitdef)
 end
 
 --检查单位是否是军事单位 (GamePlay, UI)
-function AzurLaneCore.IsMilitary(unit)
+function AzurCore.IsMilitary(unit)
     if unit == nil then return false end
     local unitInfo = GameInfo.Units[unit:GetType()]
     if unitInfo == nil then return false end
@@ -161,7 +161,7 @@ function AzurLaneCore.IsMilitary(unit)
 end
 
 --规范每回合价值显示 (GamePlay, UI)
-function AzurLaneCore.FormatValue(value)
+function AzurCore.FormatValue(value)
     if value == 0 then
         return Locale.ToNumber(value)
     else
@@ -170,12 +170,12 @@ function AzurLaneCore.FormatValue(value)
 end
 
 --数字百分比修正 (GamePlay, UI)
-function AzurLaneCore:ModifyByPercent(num, percent)
+function AzurCore:ModifyByPercent(num, percent)
     return self.Round(num * (1 + percent / 100))
 end
 
 --获取玩家的区域数量 (GamePlay, UI)
-function AzurLaneCore.GetPlayerDistrictCount(playerID, index)
+function AzurCore.GetPlayerDistrictCount(playerID, index)
     local pPlayer, count = Players[playerID], 0
     if not pPlayer then return count end
     local districts = pPlayer:GetDistricts()
@@ -191,12 +191,12 @@ end
 --这些函数只可在GamePlay环境下使用
 
 --随机数生成器，范围为[1,num+1] (GamePlay)
-function AzurLaneCore.tableRandom(num)
+function AzurCore.tableRandom(num)
     return Game.GetRandNum and (Game.GetRandNum(num) + 1) or 1
 end
 
 --玩家获得随机数量的尤里卡 (GamePlay)
-function AzurLaneCore:GetRandomTechBoosts(playerID, iSource, num)
+function AzurCore:GetRandomTechBoosts(playerID, iSource, num)
     local pPlayer = Players[playerID]
     local EraIndex = 1
     local playerTech = pPlayer:GetTechs()
@@ -233,7 +233,7 @@ function AzurLaneCore:GetRandomTechBoosts(playerID, iSource, num)
 end
 
 --玩家获得随机数量的鼓舞 (GamePlay)
-function AzurLaneCore:GetRandomCivicBoosts(playerID, iSource, num)
+function AzurCore:GetRandomCivicBoosts(playerID, iSource, num)
     local pPlayer = Players[playerID]
     local EraIndex = 1
     local playerCulture = pPlayer:GetCulture()
@@ -270,7 +270,7 @@ function AzurLaneCore:GetRandomCivicBoosts(playerID, iSource, num)
 end
 
 --对单位造成伤害，超出生命值则死亡 (GamePlay)
-function AzurLaneCore.DamageUnit(unit, damage)
+function AzurCore.DamageUnit(unit, damage)
     local maxDamage = unit:GetMaxDamage()
     if (unit:GetDamage() + damage) >= maxDamage then
         unit:SetDamage(maxDamage)
@@ -283,7 +283,7 @@ function AzurLaneCore.DamageUnit(unit, damage)
 end
 
 --传播宗教，以x,y为中心，向range范围内的城市施加pressure点宗教压力 (GamePlay)
-function AzurLaneCore:SpreadReligion(playerID, x, y, range, pressure)
+function AzurCore:SpreadReligion(playerID, x, y, range, pressure)
     local religion = self.GetPlayerReligion(playerID)
     if religion == -1 then return end
     for _, player in ipairs(Game.GetPlayers()) do
@@ -301,7 +301,7 @@ end
 --||=========================UI=========================||--
 
 --获取城市生产详细信息 (UI)
-function AzurLaneCore.GetProductionDetail(city)
+function AzurCore.GetProductionDetail(city)
     local details = { --城市生产详细信息
         --城市在生产什么
         Producting = false,
