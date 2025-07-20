@@ -24,6 +24,8 @@ function AzurMath.Round(num)
     return math.floor((num + 0.05) * 10) / 10
 end
 
+--||====================Modify functions==================||--
+
 -- 将输入的数字按照百分比进行修正 (GamePlay, UI)
 function AzurMath:ModifyByPercent(num, percent, effect)
     return self.Round(num * (effect and percent or (100 + percent)) / 100)
@@ -34,4 +36,20 @@ function AzurMath:ModifyBySpeed(num)
     local gameSpeed = GameInfo.GameSpeeds[GameConfiguration.GetGameSpeedType()]
     if gameSpeed then num = self.Round(num * gameSpeed.CostMultiplier / 100) end
     return num
+end
+
+--||====================Random functions==================||--
+
+-- 随机数生成器，范围为[1,num] (GamePlay)
+function AzurMath.GetRandNum(num)
+    return Game.GetRandNum and (Game.GetRandNum(num) + 1) or 1
+end
+
+-- 随机数生成器，范围为[x,y] (GamePlay)
+function AzurMath:GetRandom(x, y)
+    y = math.max(x, y)
+    if x == y then return x end
+    local a = x - 1
+    local n = y - a
+    return self.GetRandNum(n) + a
 end

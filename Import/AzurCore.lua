@@ -2,6 +2,10 @@
 -- Author: HSbF6HSO3F
 -- DateCreated: 2024/10/10 21:10:53
 --------------------------------------------------------------
+--||=======================include========================||--
+include('AzurDebug')
+include('AzurMath')
+
 --建立代码框架
 AzurCore = {}
 
@@ -18,18 +22,6 @@ end
 function AzurCore.CheckCivMatched(playerID, civilizationType)
     local pPlayerConfig = playerID and PlayerConfigurations[playerID]
     return pPlayerConfig and pPlayerConfig:GetCivilizationTypeName() == civilizationType
-end
-
---数字四舍五入处理 (GamePlay, UI)
-function AzurCore.Round(num)
-    return math.floor((num + 0.05) * 10) / 10
-end
-
---将输入的数字按照当前游戏速度进行修正 (GamePlay, UI)
-function AzurCore:ModifyBySpeed(num)
-    local gameSpeed = GameInfo.GameSpeeds[GameConfiguration.GetGameSpeedType()]
-    if gameSpeed then num = self.Round(num * gameSpeed.CostMultiplier / 100) end
-    return num
 end
 
 --检查table中是否有指定元素 (GamePlay, UI)
@@ -74,7 +66,7 @@ function AzurCore:GetPlayerProgress(playerID)
     end
     local civicProgress = civicNum ~= 0 and civicedNum / civicNum or 0
     local techProgress = techNum ~= 0 and techedNum / techNum or 0
-    return self.Round(100 * math.max(techProgress, civicProgress))
+    return AzurMath.Round(100 * math.max(techProgress, civicProgress))
 end
 
 --获取两个对象之间的距离 (GamePlay, UI)
@@ -169,11 +161,6 @@ function AzurCore.FormatValue(value)
     end
 end
 
---数字百分比修正 (GamePlay, UI)
-function AzurCore:ModifyByPercent(num, percent)
-    return self.Round(num * (1 + percent / 100))
-end
-
 --获取玩家的区域数量 (GamePlay, UI)
 function AzurCore.GetPlayerDistrictCount(playerID, index)
     local pPlayer, count = Players[playerID], 0
@@ -189,11 +176,6 @@ end
 
 --||=====================GamePlay=======================||--
 --这些函数只可在GamePlay环境下使用
-
---随机数生成器，范围为[1,num+1] (GamePlay)
-function AzurCore.tableRandom(num)
-    return Game.GetRandNum and (Game.GetRandNum(num) + 1) or 1
-end
 
 --玩家获得随机数量的尤里卡 (GamePlay)
 function AzurCore:GetRandomTechBoosts(playerID, iSource, num)
@@ -220,7 +202,7 @@ function AzurCore:GetRandomTechBoosts(playerID, iSource, num)
                 end
             end
             if #techlist > 0 then
-                local iTech = techlist[self.tableRandom(#techlist)]
+                local iTech = techlist[AzurMath.GetRandNum(#techlist)]
                 playerTech:TriggerBoost(iTech, iSource)
                 limit = limit - 1
             else
@@ -257,7 +239,7 @@ function AzurCore:GetRandomCivicBoosts(playerID, iSource, num)
                 end
             end
             if #civiclist > 0 then
-                local iCivic = civiclist[self.tableRandom(#civiclist)]
+                local iCivic = civiclist[AzurMath.GetRandNum(#civiclist)]
                 playerCulture:TriggerBoost(iCivic, iSource)
                 limit = limit - 1
             else
