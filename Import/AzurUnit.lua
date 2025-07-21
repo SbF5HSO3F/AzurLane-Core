@@ -3,7 +3,7 @@
 -- DateCreated: 2025/7/15 11:07:45
 --------------------------------------------------------------
 --||=======================include========================||--
-include('AzurCoreScript')
+include('AzurCore')
 
 --||======================MetaTable=======================||--
 
@@ -35,6 +35,17 @@ function AzurUnit:IsMilitary()
     return unitFormation == 'FORMATION_CLASS_LAND_COMBAT'
         or unitFormation == 'FORMATION_CLASS_NAVAL'
         or unitFormation == 'FORMATION_CLASS_AIR'
+end
+
+-- 获取单位距离某一对象的距离 (GamePlay, UI)
+function AzurCore:GetDistance(object)
+    local result, seUnit = 0, self.Unit
+    if seUnit and object then
+        result = Map.GetPlotDistance(
+            seUnit:GetX(), seUnit:GetY(),
+            object:GetX(), object:GetY()
+        )
+    end; return result
 end
 
 --比较单位，如果新单位强度高与本单位则返回true (GamePlay, UI)

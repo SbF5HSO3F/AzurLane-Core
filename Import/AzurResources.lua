@@ -3,8 +3,10 @@
 -- DateCreated: 2025/3/2 9:33:12
 --------------------------------------------------------------
 --||=======================include========================||--
+include('AzurCore')
 include('AzurImprovements')
 include('AzurConditions')
+include('AzurYields')
 
 --||======================MetaTable=======================||--
 
@@ -18,7 +20,8 @@ AzurResource = {
     Terrains     = {},
     Remove       = true,
     Features     = {},
-    Improvements = {}
+    Improvements = {},
+    Yields       = {}
 }
 
 --创建新实例，根据资源定义
@@ -71,6 +74,17 @@ function AzurResource:newByDef(resourceDef)
             end
         end
     end
+    --遍历资源产出
+    object.Yields = {}
+    for row in GameInfo.Resource_YieldChanges() do
+        if row.ResourceType == resource then
+            -- 添加资源产出
+            local yieldType = row.YieldType
+            local yield = object.Yields[yieldType] or 0
+            yield = yield + row.YieldChange
+            object.Yields[yieldType] = yield
+        end
+    end
     return object
 end
 
@@ -103,6 +117,7 @@ function AzurResource:newByDefNoValid(resourceDef)
     object.Remove       = true
     object.Features     = {}
     object.Improvements = {}
+    object.Yields       = {}
     return object
 end
 
@@ -159,6 +174,43 @@ function AzurResource:GetConditionsTooltip()
         table.insert(sets.Sets, Locale.Lookup('LOC_AZURLANE_RESOURCE_NO_FEATURE'))
     end
     return title .. AzurConditions:Create(sets, '', true)
+end
+
+-- 获取资源改变tooltip
+function AzurResource:GetChangeYieldsTooltip()
+    local tooltip = Locale.Lookup('LOC_AZURLANE_RESOURCE_CHANGE')
+    for key, val in pairs(self.Yields) do
+        local tip = 'LOC_AZURLANE_RESOURCE_' .. key
+        tooltip = tooltip .. Locale.Lookup(tip, val)
+    end
+    return tooltip
+end
+
+-- 获取收获资源的产出
+function AzurResource:GetHarvestYields(playerId, value)
+    local percent = AzurCore:GetPlayerProgress(playerId)
+    local amount = 20 * (1 + 9 * percent / 100) * value
+    return math.ceil(AzurMath:ModifyBySpeed(amount))
+end
+
+-- 获得收获资源产出
+function AzurResource:GrantHarvestYields(playerId, x, y)
+    for key, val in pairs(self.Yields) do
+        local amount = self:GetHarvestYields(playerId, val)
+        AzurYields:GrantYieldAtXY(playerId, key, amount, x, y)
+    end
+end
+
+-- 获得收获资源产出tooltip
+function AzurResource:GetHarvestYieldsTooltip(playerId)
+    local tooltip = ''
+    for key, val in pairs(self.Yields) do
+        -- 获取产出tooltip
+        local yield = AzurYields:GetYield(key)
+        local num = self:GetHarvestYields(playerId, val)
+        tooltip = tooltip .. yield:GetTooltip(num)
+    end
+    return tooltip
 end
 
 --||======================MetaTable=======================||--
@@ -224,6 +276,17 @@ function AzurResources:new(resourceReq)
             table.insert(resource.Improvements, improvement)
         end
     end
+    --改良资源产出
+    for row in GameInfo.Resource_YieldChanges() do
+        local resource = object.Resources[row.ResourceType]
+        if resource then
+            -- 添加资源产出
+            local yieldType = row.YieldType
+            local yield = resource.Yields[yieldType] or 0
+            yield = yield + row.YieldChange
+            resource.Yields[yieldType] = yield
+        end
+    end
     return object
 end
 
@@ -240,13 +303,7 @@ function AzurResources:GetPlaceableResources(plot)
     --地形
     for _, resource in pairs(self.Resources) do
         if resource:GetPlaceable(plot) then
-            local def = {}
-            def.Index = resource.Index
-            def.Type  = resource.Type
-            def.Name  = resource.Name
-            def.Icon  = resource.Icon
-            table.insert(list, def)
+            table.insert(list, resource)
         end
-    end
-    return list
+    end; return list
 end

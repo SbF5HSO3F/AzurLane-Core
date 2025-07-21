@@ -1,4 +1,4 @@
--- AzurCoreScript
+-- AzurCore
 -- Author: HSbF6HSO3F
 -- DateCreated: 2024/10/10 21:10:53
 --------------------------------------------------------------
@@ -6,45 +6,75 @@
 include('AzurDebug')
 include('AzurMath')
 
---建立代码框架
+--||======================MetaTable=======================||--
 AzurCore = {}
 
---||====================GamePlay, UI======================||--
---通用函数
+--||===================Check Functions====================||--
 
---判断领袖，玩家不为指定领袖类型则返回false (GamePlay, UI)
+-- 判断领袖，玩家不为指定领袖类型则返回false (GamePlay, UI)
+---- playerID          玩家ID
+---- leaderType        领袖类型
 function AzurCore.CheckLeaderMatched(playerID, leaderType)
     local pPlayerConfig = playerID and PlayerConfigurations[playerID]
     return pPlayerConfig and pPlayerConfig:GetLeaderTypeName() == leaderType
 end
 
---判断文明，玩家文明不为指定文明类型则返回false (GamePlay, UI)
+-- 判断文明，玩家文明不为指定文明类型则返回false (GamePlay, UI)
+---- playerID          玩家ID
+---- civilizationType  文明类型
 function AzurCore.CheckCivMatched(playerID, civilizationType)
     local pPlayerConfig = playerID and PlayerConfigurations[playerID]
     return pPlayerConfig and pPlayerConfig:GetCivilizationTypeName() == civilizationType
 end
 
---检查table中是否有指定元素 (GamePlay, UI)
-function AzurCore.include(table, element)
+--||====================Is Functions======================||--
+
+-- 检查table中是否有指定元素 (GamePlay, UI)
+---- table             要检查的table
+---- element           要查找的元素
+function AzurCore.IsInclude(table, element)
     for _, value in pairs(table) do
-        if value == element then
-            return true
-        end
+        if value == element then return true end
     end
     return false
 end
 
---检查科技或者市政是否拥有提升 (GamePlay, UI)
+-- 检查单位是否是军事单位 (GamePlay, UI)
+---- unit              单位对象
+function AzurCore.IsMilitary(unit)
+    if unit == nil then return false end
+    local unitInfo = GameInfo.Units[unit:GetType()]
+    if unitInfo == nil then return false end
+    local unitFormation = unitInfo.FormationClass
+    return unitFormation == 'FORMATION_CLASS_LAND_COMBAT'
+        or unitFormation == 'FORMATION_CLASS_NAVAL'
+        or unitFormation == 'FORMATION_CLASS_AIR'
+end
+
+--||====================Has Functions=====================||--
+
+-- 检查科技或者市政是否拥有提升 (GamePlay, UI)
+---- techOrCivic       科技或者市政类型
 function AzurCore.HasBoost(techOrCivic)
     for boost in GameInfo.Boosts() do
-        if techOrCivic == boost.TechnologyType or techOrCivic == boost.CivicType then
+        if techOrCivic == boost.TechnologyType
+            or techOrCivic == boost.CivicType then
             return true
         end
     end
     return false
 end
 
---获得玩家游戏进度。返回为百分比，需除以100 (GamePlay, UI)
+-- 检查单位是否拥有战斗力 (GamePlay, UI)
+---- unit              单位对象
+function AzurCore.HasStrength(unit)
+    return unit and (unit:GetCombat() > 0 or unit:GetRangedCombat() > 0 or unit:GetBombardCombat() > 0)
+end
+
+--||====================Get Functions=====================||--
+
+-- 获得玩家游戏进度。返回为百分比，需除以100 (GamePlay, UI)
+---- playerID          玩家ID
 function AzurCore:GetPlayerProgress(playerID)
     local pPlayer = Players[playerID]
     if pPlayer == nil then return 0 end
@@ -69,7 +99,9 @@ function AzurCore:GetPlayerProgress(playerID)
     return AzurMath.Round(100 * math.max(techProgress, civicProgress))
 end
 
---获取两个对象之间的距离 (GamePlay, UI)
+-- 获取两个对象之间的距离 (GamePlay, UI)
+---- object_1          对象1
+---- object_2          对象2
 function AzurCore.GetDistance(object_1, object_2)
     local result = 0
     if object_1 and object_2 then
@@ -80,36 +112,8 @@ function AzurCore.GetDistance(object_1, object_2)
     end; return result
 end
 
---比较单位，如果单位2强度高于单位1则返回true (GamePlay, UI)
-function AzurCore.CompareUnitDef(unit1Def, unit2Def)
-    if unit1Def == nil then return true end
-    if unit2Def == nil then return false end
-
-    if unit1Def.Combat ~= unit2Def.Combat then
-        return unit1Def.Combat < unit2Def.Combat
-    end
-
-    if unit1Def.RangedCombat ~= unit2Def.RangedCombat then
-        return unit1Def.RangedCombat < unit2Def.RangedCombat
-    end
-
-    if unit1Def.Bombard ~= unit2Def.Bombard then
-        return unit1Def.Bombard < unit2Def.Bombard
-    end
-
-    if unit1Def.Range ~= unit2Def.Range then
-        return unit1Def.Range < unit2Def.Range
-    end
-
-    return unit1Def.BaseMoves < unit2Def.BaseMoves
-end
-
---检查单位是否拥有战斗力 (GamePlay, UI)
-function AzurCore.HasStrength(unit)
-    return unit and (unit:GetCombat() > 0 or unit:GetRangedCombat() > 0 or unit:GetBombardCombat() > 0)
-end
-
---获取玩家宗教，已创建宗教则返回创建的宗教，没有则返回玩家的主流宗教，否则返回-1 (GamePlay, UI)
+-- 获取玩家宗教，已创建宗教则返回创建的宗教，没有则返回玩家的主流宗教，否则返回-1 (GamePlay, UI)
+---- playerID          玩家ID
 function AzurCore.GetPlayerReligion(playerID)
     local pPlayer = Players[playerID]
     if pPlayer == nil then return -1 end
@@ -122,46 +126,9 @@ function AzurCore.GetPlayerReligion(playerID)
     end
 end
 
---判断单元格是否可以放置指定单位 (GamePlay, UI)
-function AzurCore.CanHaveUnit(plot, unitdef)
-    if plot == nil then return false end
-    local canHave = true
-    for _, unit in ipairs(Units.GetUnitsInPlot(plot)) do
-        if unit then
-            local unitInfo = GameInfo.Units[unit:GetType()]
-            if unitInfo then
-                if unitInfo.IgnoreMoves == false then
-                    if unitInfo.Domain == unitdef.Domain and unitInfo.FormationClass == unitdef.FormationClass then
-                        canHave = false
-                    end
-                end
-            end
-        end
-    end
-    return canHave
-end
-
---检查单位是否是军事单位 (GamePlay, UI)
-function AzurCore.IsMilitary(unit)
-    if unit == nil then return false end
-    local unitInfo = GameInfo.Units[unit:GetType()]
-    if unitInfo == nil then return false end
-    local unitFormation = unitInfo.FormationClass
-    return unitFormation == 'FORMATION_CLASS_LAND_COMBAT'
-        or unitFormation == 'FORMATION_CLASS_NAVAL'
-        or unitFormation == 'FORMATION_CLASS_AIR'
-end
-
---规范每回合价值显示 (GamePlay, UI)
-function AzurCore.FormatValue(value)
-    if value == 0 then
-        return Locale.ToNumber(value)
-    else
-        return Locale.Lookup("{1: number +#,###.#;-#,###.#}", value)
-    end
-end
-
---获取玩家的区域数量 (GamePlay, UI)
+-- 获取玩家的区域数量 (GamePlay, UI)
+---- playerID          玩家ID
+---- index             区域索引
 function AzurCore.GetPlayerDistrictCount(playerID, index)
     local pPlayer, count = Players[playerID], 0
     if not pPlayer then return count end
@@ -174,10 +141,10 @@ function AzurCore.GetPlayerDistrictCount(playerID, index)
     return count
 end
 
---||=====================GamePlay=======================||--
---这些函数只可在GamePlay环境下使用
-
---玩家获得随机数量的尤里卡 (GamePlay)
+-- 玩家获得随机数量的尤里卡 (GamePlay)
+---- playerID          玩家ID
+---- iSource           尤里卡来源
+---- num               数量
 function AzurCore:GetRandomTechBoosts(playerID, iSource, num)
     local pPlayer = Players[playerID]
     local EraIndex = 1
@@ -215,6 +182,9 @@ function AzurCore:GetRandomTechBoosts(playerID, iSource, num)
 end
 
 --玩家获得随机数量的鼓舞 (GamePlay)
+---- playerID          玩家ID
+---- iSource           尤里卡来源
+---- num               数量
 function AzurCore:GetRandomCivicBoosts(playerID, iSource, num)
     local pPlayer = Players[playerID]
     local EraIndex = 1
@@ -251,38 +221,8 @@ function AzurCore:GetRandomCivicBoosts(playerID, iSource, num)
     end
 end
 
---对单位造成伤害，超出生命值则死亡 (GamePlay)
-function AzurCore.DamageUnit(unit, damage)
-    local maxDamage = unit:GetMaxDamage()
-    if (unit:GetDamage() + damage) >= maxDamage then
-        unit:SetDamage(maxDamage)
-        UnitManager.Kill(unit, false)
-        return true
-    else
-        unit:ChangeDamage(damage)
-        return false
-    end
-end
-
---传播宗教，以x,y为中心，向range范围内的城市施加pressure点宗教压力 (GamePlay)
-function AzurCore:SpreadReligion(playerID, x, y, range, pressure)
-    local religion = self.GetPlayerReligion(playerID)
-    if religion == -1 then return end
-    for _, player in ipairs(Game.GetPlayers()) do
-        local cities = player:GetCities()
-        for _, city in cities:Members() do
-            if city ~= nil and Map.GetPlotDistance(
-                    x, y, city:GetX(), city:GetY()
-                ) <= range then
-                city:GetReligion():AddReligiousPressure(8, religion, pressure, playerID)
-            end
-        end
-    end
-end
-
---||=========================UI=========================||--
-
 --获取城市生产详细信息 (UI)
+---- city              城市对象
 function AzurCore.GetProductionDetail(city)
     local details = { --城市生产详细信息
         --城市在生产什么
@@ -399,3 +339,101 @@ function AzurCore.GetProductionDetail(city)
     end
     return details
 end
+
+--||======================Utilities=======================||--
+
+--比较单位，如果单位2强度高于单位1则返回true (GamePlay, UI)
+---- unit1             单位1Def
+---- unit2             单位2Def
+function AzurCore.CompareUnitDef(unit1Def, unit2Def)
+    if unit1Def == nil then return true end
+    if unit2Def == nil then return false end
+
+    if unit1Def.Combat ~= unit2Def.Combat then
+        return unit1Def.Combat < unit2Def.Combat
+    end
+
+    if unit1Def.RangedCombat ~= unit2Def.RangedCombat then
+        return unit1Def.RangedCombat < unit2Def.RangedCombat
+    end
+
+    if unit1Def.Bombard ~= unit2Def.Bombard then
+        return unit1Def.Bombard < unit2Def.Bombard
+    end
+
+    if unit1Def.Range ~= unit2Def.Range then
+        return unit1Def.Range < unit2Def.Range
+    end
+
+    return unit1Def.BaseMoves < unit2Def.BaseMoves
+end
+
+--判断单元格是否可以放置指定单位 (GamePlay, UI)
+---- plot              单元格
+---- unitdef           单位Def
+function AzurCore.CanHaveUnit(plot, unitdef)
+    if plot == nil then return false end
+    local canHave = true
+    for _, unit in ipairs(Units.GetUnitsInPlot(plot)) do
+        if unit then
+            local unitInfo = GameInfo.Units[unit:GetType()]
+            if unitInfo then
+                if unitInfo.IgnoreMoves == false then
+                    if unitInfo.Domain == unitdef.Domain and unitInfo.FormationClass == unitdef.FormationClass then
+                        canHave = false
+                    end
+                end
+            end
+        end
+    end
+    return canHave
+end
+
+--规范每回合价值显示 (GamePlay, UI)
+---- value             价值
+function AzurCore.FormatValue(value)
+    if value == 0 then
+        return Locale.ToNumber(value)
+    else
+        return Locale.Lookup("{1: number +#,###.#;-#,###.#}", value)
+    end
+end
+
+--对单位造成伤害，超出生命值则死亡 (GamePlay)
+---- unit              单位对象
+---- damage            伤害值
+function AzurCore.DamageUnit(unit, damage)
+    local maxDamage = unit:GetMaxDamage()
+    if (unit:GetDamage() + damage) >= maxDamage then
+        unit:SetDamage(maxDamage)
+        UnitManager.Kill(unit, false)
+        return true
+    else
+        unit:ChangeDamage(damage)
+        return false
+    end
+end
+
+--传播宗教，以x,y为中心，向range范围内的城市施加pressure点宗教压力 (GamePlay)
+---- playerID          玩家ID
+---- x                 坐标x
+---- y                 坐标y
+---- range             范围
+---- pressure          压力大小
+function AzurCore:SpreadReligion(playerID, x, y, range, pressure)
+    local religion = self.GetPlayerReligion(playerID)
+    if religion == -1 then return end
+    for _, player in ipairs(Game.GetPlayers()) do
+        local cities = player:GetCities()
+        for _, city in cities:Members() do
+            if city ~= nil and Map.GetPlotDistance(
+                    x, y, city:GetX(), city:GetY()
+                ) <= range then
+                city:GetReligion():AddReligiousPressure(8, religion, pressure, playerID)
+            end
+        end
+    end
+end
+
+--||=======================include========================||--
+include('AzurCore_', true)

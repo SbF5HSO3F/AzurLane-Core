@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" xml:space="preserve"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- AzurLaneCoreCode_TextCn -->
 <!-- Author: HSbF6HSO3F -->
 <!-- DateCreated: 2025/3/2 9:38:29 -->
@@ -22,6 +22,64 @@
 		</Replace>
         <Replace Tag="LOC_AZURLANE_RESOURCE_VAILD_FEATURE" Language="zh_Hans_CN">
 			<Text>[NEWLINE]    [ICON_Bullet]拥有地貌：{1_Feature}</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_RESOURCE_CHANGE" Language="zh_Hans_CN">
+			<Text>产出增加：</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_RESOURCE_YIELD_SCIENCE" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]+{1_amount} [ICON_SCIENCE] 科技值</Text>
+		</Replace>
+        <Replace Tag="LOC_AZURLANE_RESOURCE_YIELD_CULTURE" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]+{1_amount} [ICON_CULTURE] 文化值</Text>
+		</Replace>
+        <Replace Tag="LOC_AZURLANE_RESOURCE_YIELD_GOLD" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]+{1_amount} [ICON_GOLD] 金币</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_RESOURCE_YIELD_FAITH" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]+{1_amount} [ICON_FAITH] 信仰值</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_RESOURCE_YIELD_FOOD" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]+{1_amount} [ICON_FOOD] 食物</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_RESOURCE_YIELD_PRODUCTION" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]+{1_amount} [ICON_PRODUCTION] 生产力</Text>
+		</Replace>
+		<!--碧蓝航线：产出-->
+		<Replace Tag="LOC_AZURLANE_YIELD_SCIENCE" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]获得{1_amount} [ICON_SCIENCE] 科技值</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_YIELD_SCIENCE_FLOAT" Language="zh_Hans_CN">
+			<Text>[COLOR_FLOAT_SCIENCE]+{1_Num}[ENDCOLOR] [ICON_SCIENCE]</Text>
+		</Replace>
+        <Replace Tag="LOC_AZURLANE_YIELD_CULTURE" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]获得{1_amount} [ICON_CULTURE] 文化值</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_YIELD_CULTURE_FLOAT" Language="zh_Hans_CN">
+			<Text>[COLOR_FLOAT_CULTURE]+{1_Num}[ENDCOLOR] [ICON_CULTURE]</Text>
+		</Replace>
+        <Replace Tag="LOC_AZURLANE_YIELD_GOLD" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]获得{1_amount} [ICON_GOLD] 金币</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_YIELD_GOLD_FLOAT" Language="zh_Hans_CN">
+			<Text>[COLOR_FLOAT_GOLD]+{1_Num}[ENDCOLOR] [ICON_GOLD]</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_YIELD_FAITH" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]获得{1_amount} [ICON_FAITH] 信仰值</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_YIELD_FAITH_FLOAT" Language="zh_Hans_CN">
+			<Text>[COLOR_FLOAT_FAITH]+{1_Num}[ENDCOLOR] [ICON_FAITH]</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_YIELD_FOOD" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]获得{1_amount} [ICON_FOOD] 食物</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_YIELD_FOOD_FLOAT" Language="zh_Hans_CN">
+			<Text>[COLOR_FLOAT_FOOD]+{1_Num}[ENDCOLOR] [ICON_FOOD]</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_YIELD_PRODUCTION" Language="zh_Hans_CN">
+			<Text>[NEWLINE][ICON_Bullet]获得{1_amount} [ICON_PRODUCTION] 生产力</Text>
+		</Replace>
+		<Replace Tag="LOC_AZURLANE_YIELD_PRODUCTION_FLOAT" Language="zh_Hans_CN">
+			<Text>[COLOR_FLOAT_PRODUCTION]+{1_Num}[ENDCOLOR] [ICON_PRODUCTION]</Text>
 		</Replace>
 	</LocalizedText>
 </GameData>
