@@ -225,26 +225,38 @@ end
 ---- city              城市对象
 function AzurCore.GetProductionDetail(city)
     local details = { --城市生产详细信息
-        --城市在生产什么
+        --项目哈希值
+        Hash       = 0,
+        --城市是否进行生产
         Producting = false,
+        --是否是建筑
         IsBuilding = false,
+        --是否是奇观
         IsWonder   = false,
+        --是否是区域
         IsDistrict = false,
+        --是否是单位
         IsUnit     = false,
+        --是否是项目
         IsProject  = false,
-        --生产项目信息
+        --生产项目类型
         ItemType   = 'NONE',
+        --生产项目名字
         ItemName   = 'NONE',
+        --生产项目索引
         ItemIndex  = -1,
-        --生产进度信息
+        --生产进度
         Progress   = 0,
+        --生产成本
         TotalCost  = 0,
+        --生产所需回合
         TurnsLeft  = 0
     }; if not city then return details end
     --获取城市生产队列，判断是否在生产
     local cityBuildQueue = city:GetBuildQueue()
     local productionHash = cityBuildQueue:GetCurrentProductionTypeHash()
     if productionHash ~= 0 then
+        details.Hash       = productionHash
         details.Producting = true
         --建筑、区域、单位、项目
         local pBuildingDef = GameInfo.Buildings[productionHash]
