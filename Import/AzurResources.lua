@@ -230,10 +230,11 @@ function AzurResources:new(resourceReq)
     --遍历资源类型列表
     for def in GameInfo.Resources() do
         local match = false
-        if def.Frequency ~= 0 or def.SeaFrequency ~= 0 then
-            if resourceReq == true then
-                match = true
-            else
+        if resourceReq == true then
+            match = true
+        else
+            if resourceReq.VaildFrequency == true or
+                (def.Frequency ~= 0 or def.SeaFrequency ~= 0) then
                 if resourceReq[def.ResourceType] then
                     match = true
                 end
