@@ -352,6 +352,22 @@ function AzurCore.GetProductionDetail(city)
     return details
 end
 
+--获取玩家拥有的资源数量，计算了玩家宗主的城邦所提供的资源 (GamePlay)
+---- player            玩家对象
+---- resourceType      资源类型
+function AzurCore.GetPlayerResource(player, resourceType)
+    local playerID = player:GetID()
+    local resourceData = player:GetResources()
+    if resourceData == nil then return 0 end
+    local num = resourceData:GetResourceAmount(resourceType)
+    for _, minor in ipairs(PlayerManager.GetAliveMinors()) do
+        local influence = minor:GetInfluence()
+        if influence ~= nil and influence:GetSuzerain() == playerID then
+            num = num + minor:GetResources():GetResourceAmount(resourceType)
+        end
+    end; return num
+end
+
 --||======================Utilities=======================||--
 
 --比较单位，如果单位2强度高于单位1则返回true (GamePlay, UI)
