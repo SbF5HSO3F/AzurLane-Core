@@ -152,3 +152,77 @@ function AzurUnit:GetRandomAbility()
     end
     return true
 end
+
+-- 获得单位晋升 (GamePlay, UI)
+function AzurUnit:GetPromotions()
+    local unit = self.Unit
+    if unit == nil then return end
+    local unitExp = unit:GetExperience()
+    -- 获得单位晋升
+    local promotions = {}
+    for row in GameInfo.UnitPromotions() do
+        if unitExp:HasPromotion(row.Index) then
+            table.insert(promotions, row.Index)
+        end
+    end
+    -- 返回晋升列表
+    return promotions
+end
+
+--单位转化为指定单位 (GamePlay)
+function AzurUnit:Transform(newUnitType)
+    --获取单位
+    local pUnit = self.Unit
+    --获取玩家
+    local pPlayer = Players[pUnit:GetOwner()]
+    if pUnit and pPlayer then
+        --获取单位军事属性
+        local formation = pUnit:GetMilitaryFormation()
+        --获取单位拥有的能力
+        local unitAbilities = pUnit:GetAbility():GetAbilities()
+        --获取单位的Property
+        local unitProperty = pUnit:GetProperties()
+        --获取单位的坐标
+        local x, y = pUnit:GetX(), pUnit:GetY()
+        --获取新单位的Def
+        local newUnitDef = GameInfo.Units[newUnitType]
+        --创建新单位
+        local newUnit = pPlayer:GetUnits():Create(newUnitDef.Index, x, y)
+        if newUnit then
+            --杀死原单位
+            UnitManager.Kill(pUnit)
+            --获取新单位的经验
+            local newUnitexp = newUnit:GetExperience()
+            --设置晋升
+            local promotions = self:GetPromotions()
+            for _, promotion in ipairs(promotions) do
+                newUnitexp:SetPromotion(promotion)
+            end
+            --设置军事属性
+            newUnit:SetMilitaryFormation(formation)
+            --获取新单位的能力
+            local newUnitAbility = newUnit:GetAbility()
+            --添加能力
+            for _, value in pairs(unitAbilities) do
+                --添加能力
+                newUnitAbility:ChangeAbilityCount(value.Ability, value.Count)
+            end
+            --设置属性
+            for key, value in pairs(unitProperty) do
+                newUnit:SetProperty(key, value)
+            end
+            --获取新单位的战斗力
+            local newUnitCombat = newUnit:GetCombat()
+            local newUnitRanged = newUnit:GetRangedCombat()
+            local newUnitBombard = newUnit:GetBombardCombat()
+            --更新战斗力
+            local stats = pPlayer:GetStats()
+            stats:UpdateMaxMeleeStrengthTrained(newUnitCombat)
+            stats:UpdateMaxRangedStrengthTrained(newUnitRanged)
+            stats:UpdateMaxBombardStrengthTrained(newUnitBombard)
+            --更新self属性
+            self.Unit = newUnit
+            self.UnitDef = newUnitDef
+        end
+    end
+end
