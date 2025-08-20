@@ -141,6 +141,25 @@ function AzurCore.GetPlayerDistrictCount(playerID, index)
     return count
 end
 
+-- 获取玩家建筑数量 (GamePlay, UI)
+---- playerID          玩家ID
+---- buildingIndex     建筑索引
+---- isPillaged        被掠夺是否不计入
+function AzurCore.GetPlayerBuildingCount(playerID, buildingIndex, isPillaged)
+    local pPlayer = Players[playerID]
+    if not pPlayer then return 0 end
+    local count, cities = 0, pPlayer:GetCities()
+    for _, city in cities:Members() do
+        local buildings = city:GetBuildings()
+        if buildings then
+            if buildings:HasBuilding(buildingIndex) and (not isPillaged or not buildings:IsPillaged(buildingIndex)) then
+                count = count + 1
+            end
+        end
+    end
+    return count
+end
+
 -- 玩家获得随机数量的尤里卡 (GamePlay)
 ---- playerID          玩家ID
 ---- iSource           尤里卡来源
